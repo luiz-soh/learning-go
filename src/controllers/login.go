@@ -20,7 +20,7 @@ import (
 // @Accept	json
 // @Produce	json
 // @Param login body models.LoginRequest true "Email e senha do usuário"
-// @Success	200 {string} string
+// @Success	200 {object} models.LoginResponse
 // @Failure 400 {object} map[string]string
 // @Failure 401 {object} map[string]string
 // @Failure 422 {object} map[string]string
@@ -69,5 +69,10 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	responses.JSON(w, http.StatusOK, token)
+	response := models.LoginResponse{
+		Token:  token,
+		UserId: usuarioComSenha.Id,
+	}
+
+	responses.JSON(w, http.StatusOK, response)
 }
