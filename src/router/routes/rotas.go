@@ -4,7 +4,10 @@ import (
 	"api/src/middlewares"
 	"net/http"
 
+	_ "api/docs" // importa os docs gerados
+
 	"github.com/gorilla/mux"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 // Rota representa a struct para as rotas da API
@@ -29,6 +32,9 @@ func Configurar(r *mux.Router) *mux.Router {
 			r.HandleFunc(rota.URI, middlewares.Logger(rota.Funcao)).Methods(rota.Metodo)
 		}
 	}
+
+	// rota para acessar o swagger
+	r.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 
 	return r
 }

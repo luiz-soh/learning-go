@@ -18,6 +18,17 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// @Summary		Criar Usuário
+// @Description Cria um usuário
+// @Tags 	usuarios
+// @Accept	json
+// @Produce	json
+// @Param usuario body models.CreateUsuarioRequest true "Dados do usuário"
+// @Success	201 {object} models.Usuario
+// @Failure 400 {object} map[string]string
+// @Failure 422 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /usuarios [post]
 func CriarUsuario(w http.ResponseWriter, r *http.Request) {
 	bodyRequest, erro := io.ReadAll(r.Body)
 
@@ -26,11 +37,18 @@ func CriarUsuario(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var usuario models.Usuario
+	var request models.CreateUsuarioRequest
 
-	if erro = json.Unmarshal(bodyRequest, &usuario); erro != nil {
+	if erro = json.Unmarshal(bodyRequest, &request); erro != nil {
 		responses.Erro(w, http.StatusBadRequest, erro)
 		return
+	}
+
+	usuario := models.Usuario{
+		Nome:  request.Nome,
+		Nick:  request.Nick,
+		Senha: request.Senha,
+		Email: request.Email,
 	}
 
 	if erro := usuario.Preparar(true); erro != nil {
@@ -55,6 +73,16 @@ func CriarUsuario(w http.ResponseWriter, r *http.Request) {
 	responses.JSON(w, http.StatusCreated, usuario)
 }
 
+// @Summary		Listar Usuários
+// @Description Lista usuários, opcionalmente filtrando por nome ou nick
+// @Tags 	usuarios
+// @Accept	json
+// @Produce	json
+// @Param usuario query string false "Nome ou nick do usuário"
+// @Success	200 {array} models.Usuario
+// @Failure 500 {object} map[string]string
+// @Security BearerAuth
+// @Router /usuarios [get]
 func ListarUsuarios(w http.ResponseWriter, r *http.Request) {
 	nomeOuNick := strings.ToLower(r.URL.Query().Get("usuario"))
 
@@ -76,6 +104,18 @@ func ListarUsuarios(w http.ResponseWriter, r *http.Request) {
 	responses.JSON(w, http.StatusOK, usuarios)
 }
 
+// @Summary		Buscar Usuário
+// @Description Busca um usuário por ID
+// @Tags 	usuarios
+// @Accept	json
+// @Produce	json
+// @Param id path int true "ID do usuário"
+// @Success	200 {object} models.Usuario
+// @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Security BearerAuth
+// @Router /usuarios/{id} [get]
 func BuscarUsuario(w http.ResponseWriter, r *http.Request) {
 	parametros := mux.Vars(r)
 
@@ -108,6 +148,22 @@ func BuscarUsuario(w http.ResponseWriter, r *http.Request) {
 	responses.JSON(w, http.StatusOK, usuario)
 }
 
+// @Summary		Atualizar Usuário
+// @Description Atualiza os dados de um usuário
+// @Tags 	usuarios
+// @Accept	json
+// @Produce	json
+// @Param id path int true "ID do usuário"
+// @Param usuario body models.UpdateUsuarioRequest true "Dados atualizados do usuário"
+// @Success	204
+// @Failure 400 {object} map[string]string
+// @Failure 401 {object} map[string]string
+// @Failure 403 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Failure 422 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Security BearerAuth
+// @Router /usuarios/{id} [put]
 func AtualizarUsuario(w http.ResponseWriter, r *http.Request) {
 	parametros := mux.Vars(r)
 
@@ -136,11 +192,17 @@ func AtualizarUsuario(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var usuario models.Usuario
+	var request models.UpdateUsuarioRequest
 
-	if erro = json.Unmarshal(bodyRequest, &usuario); erro != nil {
+	if erro = json.Unmarshal(bodyRequest, &request); erro != nil {
 		responses.Erro(w, http.StatusBadRequest, erro)
 		return
+	}
+
+	usuario := models.Usuario{
+		Nome:  request.Nome,
+		Nick:  request.Nick,
+		Email: request.Email,
 	}
 
 	if erro := usuario.Preparar(false); erro != nil {
@@ -168,6 +230,20 @@ func AtualizarUsuario(w http.ResponseWriter, r *http.Request) {
 	responses.JSON(w, http.StatusNoContent, nil)
 }
 
+// @Summary		Deletar Usuário
+// @Description Deleta um usuário
+// @Tags 	usuarios
+// @Accept	json
+// @Produce	json
+// @Param id path int true "ID do usuário"
+// @Success	204
+// @Failure 400 {object} map[string]string
+// @Failure 401 {object} map[string]string
+// @Failure 403 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Security BearerAuth
+// @Router /usuarios/{id} [delete]
 func DeletarUsuario(w http.ResponseWriter, r *http.Request) {
 	parametros := mux.Vars(r)
 
@@ -209,6 +285,18 @@ func DeletarUsuario(w http.ResponseWriter, r *http.Request) {
 	responses.JSON(w, http.StatusNoContent, nil)
 }
 
+// @Summary		Alternar Seguir Usuário
+// @Description Segue ou deixa de seguir um usuário
+// @Tags 	usuarios
+// @Accept	json
+// @Produce	json
+// @Param id path int true "ID do usuário"
+// @Success	204
+// @Failure 400 {object} map[string]string
+// @Failure 401 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Security BearerAuth
+// @Router /usuarios/{id}/seguir [post]
 func AlternarSeguirUsuario(w http.ResponseWriter, r *http.Request) {
 	seguidorId, erro := authentication.ExtrairUsuarioId(r)
 	if erro != nil {
@@ -245,6 +333,17 @@ func AlternarSeguirUsuario(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// @Summary		Buscar Seguidores
+// @Description Busca os seguidores de um usuário
+// @Tags 	usuarios
+// @Accept	json
+// @Produce	json
+// @Param id path int true "ID do usuário"
+// @Success	200 {array} models.Usuario
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Security BearerAuth
+// @Router /usuarios/{id}/seguidores [get]
 func BuscarSeguidores(w http.ResponseWriter, r *http.Request) {
 	parametros := mux.Vars(r)
 	usuarioId, erro := strconv.ParseUint(parametros["id"], 10, 64)
@@ -270,6 +369,17 @@ func BuscarSeguidores(w http.ResponseWriter, r *http.Request) {
 	responses.JSON(w, http.StatusOK, usuarios)
 }
 
+// @Summary		Buscar Seguindo
+// @Description Busca os usuários que um usuário está seguindo
+// @Tags 	usuarios
+// @Accept	json
+// @Produce	json
+// @Param id path int true "ID do usuário"
+// @Success	200 {array} models.Usuario
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Security BearerAuth
+// @Router /usuarios/{id}/seguindo [get]
 func BuscarSeguindo(w http.ResponseWriter, r *http.Request) {
 	parametros := mux.Vars(r)
 	usuarioId, erro := strconv.ParseUint(parametros["id"], 10, 64)
@@ -295,6 +405,19 @@ func BuscarSeguindo(w http.ResponseWriter, r *http.Request) {
 	responses.JSON(w, http.StatusOK, usuarios)
 }
 
+// @Summary		Alterar Senha
+// @Description Altera a senha do usuário autenticado
+// @Tags 	usuarios
+// @Accept	json
+// @Produce	json
+// @Param alterarSenha body models.AlterarSenha true "Senhas atual e nova"
+// @Success	204
+// @Failure 400 {object} map[string]string
+// @Failure 401 {object} map[string]string
+// @Failure 422 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Security BearerAuth
+// @Router /usuarios/alterar_senha [post]
 func AlterarSenha(w http.ResponseWriter, r *http.Request) {
 	usuarioId, erro := authentication.ExtrairUsuarioId(r)
 

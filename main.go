@@ -1,5 +1,14 @@
 package main
 
+// @title DevBook API
+// @version 1.0
+// @description API para rede social DevBook
+// @host localhost:5000
+// @BasePath /
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+
 import (
 	"api/src/config"
 	"api/src/router"

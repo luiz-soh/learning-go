@@ -14,6 +14,18 @@ import (
 	"net/http"
 )
 
+// @Summary		Login
+// @Description Faz login e retorna token JWT
+// @Tags 	login
+// @Accept	json
+// @Produce	json
+// @Param login body models.LoginRequest true "Email e senha do usuário"
+// @Success	200 {string} string
+// @Failure 400 {object} map[string]string
+// @Failure 401 {object} map[string]string
+// @Failure 422 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /login [post]
 func Login(w http.ResponseWriter, r *http.Request) {
 	requestBody, erro := io.ReadAll(r.Body)
 
@@ -22,8 +34,8 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var usuario models.Usuario
-	if erro = json.Unmarshal(requestBody, &usuario); erro != nil {
+	var login models.LoginRequest
+	if erro = json.Unmarshal(requestBody, &login); erro != nil {
 		responses.Erro(w, http.StatusBadRequest, erro)
 		return
 	}
@@ -36,7 +48,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	defer db.Close()
 
 	repositorio := repositories.NewUsuariosRepo(db)
-	usuarioComSenha, erro := repositorio.BuscarPorEmail(usuario.Email)
+	usuarioComSenha, erro := repositorio.BuscarPorEmail(login.Email)
 	if erro != nil {
 		if erro == sql.ErrNoRows {
 			responses.Erro(w, http.StatusUnauthorized, errors.New("usuário ou senha incorretos"))
@@ -46,7 +58,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if erro = security.VerificarSenha(usuario.Senha, usuarioComSenha.Senha); erro != nil {
+	if erro = security.VerificarSenha(login.Senha, usuarioComSenha.Senha); erro != nil {
 		responses.Erro(w, http.StatusUnauthorized, errors.New("usuário ou senha incorretos"))
 		return
 	}

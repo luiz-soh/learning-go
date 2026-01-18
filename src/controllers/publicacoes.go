@@ -15,6 +15,19 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// @Summary		Criar Publicação
+// @Description Cria uma nova publicação
+// @Tags 	publicacoes
+// @Accept	json
+// @Produce	json
+// @Param publicacao body models.PublicacaoRequest true "Dados da publicação"
+// @Success	201 {object} models.Publicacao
+// @Failure 400 {object} map[string]string
+// @Failure 401 {object} map[string]string
+// @Failure 422 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Security BearerAuth
+// @Router /publicacoes [post]
 func CriarPublicacao(w http.ResponseWriter, r *http.Request) {
 	usuarioId, erro := authentication.ExtrairUsuarioId(r)
 	if erro != nil {
@@ -28,11 +41,17 @@ func CriarPublicacao(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var publicacao models.Publicacao
+	var publicacaoRequest models.PublicacaoRequest
 
-	if erro = json.Unmarshal(bodyRequest, &publicacao); erro != nil {
+	if erro = json.Unmarshal(bodyRequest, &publicacaoRequest); erro != nil {
 		responses.Erro(w, http.StatusBadRequest, erro)
 		return
+	}
+
+	publicacao := models.Publicacao{
+		Titulo:   publicacaoRequest.Titulo,
+		Conteudo: publicacaoRequest.Conteudo,
+		AutorId:  usuarioId,
 	}
 
 	if erro := publicacao.Preparar(); erro != nil {
@@ -57,6 +76,15 @@ func CriarPublicacao(w http.ResponseWriter, r *http.Request) {
 	responses.JSON(w, http.StatusCreated, publicacao)
 }
 
+// @Summary		Buscar Publicações
+// @Description Busca publicações do usuário autenticado e seus seguidores
+// @Tags 	publicacoes
+// @Accept	json
+// @Produce	json
+// @Success	200 {array} models.Publicacao
+// @Failure 500 {object} map[string]string
+// @Security BearerAuth
+// @Router /publicacoes [get]
 func BuscarPublicacoes(w http.ResponseWriter, r *http.Request) {
 	usuarioId, erro := authentication.ExtrairUsuarioId(r)
 	if erro != nil {
@@ -81,6 +109,18 @@ func BuscarPublicacoes(w http.ResponseWriter, r *http.Request) {
 	responses.JSON(w, http.StatusOK, publicacoes)
 }
 
+// @Summary		Buscar Publicação
+// @Description Busca uma publicação por ID
+// @Tags 	publicacoes
+// @Accept	json
+// @Produce	json
+// @Param id path int true "ID da publicação"
+// @Success	200 {object} models.Publicacao
+// @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Security BearerAuth
+// @Router /publicacoes/{id} [get]
 func BuscarPublicacao(w http.ResponseWriter, r *http.Request) {
 	parametros := mux.Vars(r)
 
@@ -113,6 +153,21 @@ func BuscarPublicacao(w http.ResponseWriter, r *http.Request) {
 	responses.JSON(w, http.StatusOK, publicacao)
 }
 
+// @Summary		Atualizar Publicação
+// @Description Atualiza uma publicação do usuário autenticado
+// @Tags 	publicacoes
+// @Accept	json
+// @Produce	json
+// @Param id path int true "ID da publicação"
+// @Param publicacao body models.PublicacaoRequest true "Dados atualizados da publicação"
+// @Success	204
+// @Failure 400 {object} map[string]string
+// @Failure 401 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Failure 422 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Security BearerAuth
+// @Router /publicacoes/{id} [put]
 func AtualizarPublicacao(w http.ResponseWriter, r *http.Request) {
 	parametros := mux.Vars(r)
 
@@ -136,11 +191,17 @@ func AtualizarPublicacao(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var publicacao models.Publicacao
+	var publicacaoRequest models.PublicacaoRequest
 
-	if erro = json.Unmarshal(bodyRequest, &publicacao); erro != nil {
+	if erro = json.Unmarshal(bodyRequest, &publicacaoRequest); erro != nil {
 		responses.Erro(w, http.StatusBadRequest, erro)
 		return
+	}
+
+	publicacao := models.Publicacao{
+		Titulo:   publicacaoRequest.Titulo,
+		Conteudo: publicacaoRequest.Conteudo,
+		AutorId:  usuarioId,
 	}
 
 	if erro := publicacao.Preparar(); erro != nil {
@@ -175,6 +236,19 @@ func AtualizarPublicacao(w http.ResponseWriter, r *http.Request) {
 	responses.JSON(w, http.StatusNoContent, nil)
 }
 
+// @Summary		Deletar Publicação
+// @Description Deleta uma publicação do usuário autenticado
+// @Tags 	publicacoes
+// @Accept	json
+// @Produce	json
+// @Param id path int true "ID da publicação"
+// @Success	204
+// @Failure 400 {object} map[string]string
+// @Failure 401 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Security BearerAuth
+// @Router /publicacoes/{id} [delete]
 func DeletarPublicacao(w http.ResponseWriter, r *http.Request) {
 	parametros := mux.Vars(r)
 
@@ -218,6 +292,17 @@ func DeletarPublicacao(w http.ResponseWriter, r *http.Request) {
 	responses.JSON(w, http.StatusNoContent, nil)
 }
 
+// @Summary		Buscar Publicações do Usuário
+// @Description Busca publicações de um usuário específico
+// @Tags 	publicacoes
+// @Accept	json
+// @Produce	json
+// @Param usuarioId path int true "ID do usuário"
+// @Success	200 {array} models.Publicacao
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Security BearerAuth
+// @Router /usuarios/{usuarioId}/publicacoes [get]
 func BuscarPublicacoesUsuario(w http.ResponseWriter, r *http.Request) {
 	parametros := mux.Vars(r)
 
@@ -245,6 +330,18 @@ func BuscarPublicacoesUsuario(w http.ResponseWriter, r *http.Request) {
 	responses.JSON(w, http.StatusOK, publicacoes)
 }
 
+// @Summary		Curtir Publicação
+// @Description Curte ou descurte uma publicação
+// @Tags 	publicacoes
+// @Accept	json
+// @Produce	json
+// @Param id path int true "ID da publicação"
+// @Success	204
+// @Failure 400 {object} map[string]string
+// @Failure 401 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Security BearerAuth
+// @Router /publicacoes/{id}/curtir [post]
 func CurtirPublicacao(w http.ResponseWriter, r *http.Request) {
 	parametros := mux.Vars(r)
 

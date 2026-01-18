@@ -1,0 +1,807 @@
+basePath: /
+definitions:
+  models.AlterarSenha:
+    properties:
+      atual:
+        type: string
+      nova:
+        type: string
+    type: object
+  models.CreateUsuarioRequest:
+    properties:
+      email:
+        type: string
+      nick:
+        type: string
+      nome:
+        type: string
+      senha:
+        type: string
+    type: object
+  models.LoginRequest:
+    properties:
+      email:
+        type: string
+      senha:
+        type: string
+    required:
+    - email
+    - senha
+    type: object
+  models.Publicacao:
+    properties:
+      CriadaEm:
+        type: string
+      autorId:
+        type: integer
+      autorNick:
+        type: string
+      conteudo:
+        type: string
+      curtidas:
+        type: integer
+      id:
+        type: integer
+      titulo:
+        type: string
+    type: object
+  models.PublicacaoRequest:
+    properties:
+      conteudo:
+        type: string
+      titulo:
+        type: string
+    type: object
+  models.UpdateUsuarioRequest:
+    properties:
+      email:
+        type: string
+      nick:
+        type: string
+      nome:
+        type: string
+    type: object
+  models.Usuario:
+    properties:
+      CriadoEm:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      nick:
+        type: string
+      nome:
+        type: string
+      senha:
+        type: string
+    type: object
+host: localhost:5000
+info:
+  contact: {}
+  description: API para rede social DevBook
+  title: DevBook API
+  version: "1.0"
+paths:
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Faz login e retorna token JWT
+      parameters:
+      - description: Email e senha do usuário
+        in: body
+        name: usuario
+        required: true
+        schema:
+          $ref: '#/definitions/models.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Login
+      tags:
+      - login
+  /publicacoes:
+    get:
+      consumes:
+      - application/json
+      description: Busca publicações do usuário autenticado e seus seguidores
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Publicacao'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Buscar Publicações
+      tags:
+      - publicacoes
+    post:
+      consumes:
+      - application/json
+      description: Cria uma nova publicação
+      parameters:
+      - description: Dados da publicação
+        in: body
+        name: publicacao
+        required: true
+        schema:
+          $ref: '#/definitions/models.PublicacaoRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Publicacao'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Criar Publicação
+      tags:
+      - publicacoes
+  /publicacoes/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Deleta uma publicação do usuário autenticado
+      parameters:
+      - description: ID da publicação
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Deletar Publicação
+      tags:
+      - publicacoes
+    get:
+      consumes:
+      - application/json
+      description: Busca uma publicação por ID
+      parameters:
+      - description: ID da publicação
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Publicacao'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Buscar Publicação
+      tags:
+      - publicacoes
+    put:
+      consumes:
+      - application/json
+      description: Atualiza uma publicação do usuário autenticado
+      parameters:
+      - description: ID da publicação
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Dados atualizados da publicação
+        in: body
+        name: publicacao
+        required: true
+        schema:
+          $ref: '#/definitions/models.PublicacaoRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Atualizar Publicação
+      tags:
+      - publicacoes
+  /publicacoes/{id}/curtir:
+    post:
+      consumes:
+      - application/json
+      description: Curte ou descurte uma publicação
+      parameters:
+      - description: ID da publicação
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Curtir Publicação
+      tags:
+      - publicacoes
+  /usuarios:
+    get:
+      consumes:
+      - application/json
+      description: Lista usuários, opcionalmente filtrando por nome ou nick
+      parameters:
+      - description: Nome ou nick do usuário
+        in: query
+        name: usuario
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Usuario'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Listar Usuários
+      tags:
+      - usuarios
+    post:
+      consumes:
+      - application/json
+      description: Cria um usuário
+      parameters:
+      - description: Dados do usuário
+        in: body
+        name: usuario
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateUsuarioRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Usuario'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Criar Usuário
+      tags:
+      - usuarios
+  /usuarios/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Deleta um usuário
+      parameters:
+      - description: ID do usuário
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Deletar Usuário
+      tags:
+      - usuarios
+    get:
+      consumes:
+      - application/json
+      description: Busca um usuário por ID
+      parameters:
+      - description: ID do usuário
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Usuario'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Buscar Usuário
+      tags:
+      - usuarios
+    put:
+      consumes:
+      - application/json
+      description: Atualiza os dados de um usuário
+      parameters:
+      - description: ID do usuário
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Dados atualizados do usuário
+        in: body
+        name: usuario
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateUsuarioRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Atualizar Usuário
+      tags:
+      - usuarios
+  /usuarios/{id}/seguidores:
+    get:
+      consumes:
+      - application/json
+      description: Busca os seguidores de um usuário
+      parameters:
+      - description: ID do usuário
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Usuario'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Buscar Seguidores
+      tags:
+      - usuarios
+  /usuarios/{id}/seguindo:
+    get:
+      consumes:
+      - application/json
+      description: Busca os usuários que um usuário está seguindo
+      parameters:
+      - description: ID do usuário
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Usuario'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Buscar Seguindo
+      tags:
+      - usuarios
+  /usuarios/{id}/seguir:
+    post:
+      consumes:
+      - application/json
+      description: Segue ou deixa de seguir um usuário
+      parameters:
+      - description: ID do usuário
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Alternar Seguir Usuário
+      tags:
+      - usuarios
+  /usuarios/{usuarioId}/publicacoes:
+    get:
+      consumes:
+      - application/json
+      description: Busca publicações de um usuário específico
+      parameters:
+      - description: ID do usuário
+        in: path
+        name: usuarioId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Publicacao'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Buscar Publicações do Usuário
+      tags:
+      - publicacoes
+  /usuarios/alterar_senha:
+    post:
+      consumes:
+      - application/json
+      description: Altera a senha do usuário autenticado
+      parameters:
+      - description: Senhas atual e nova
+        in: body
+        name: alterarSenha
+        required: true
+        schema:
+          $ref: '#/definitions/models.AlterarSenha'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Alterar Senha
+      tags:
+      - usuarios
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
