@@ -11,7 +11,7 @@ type Usuarios struct {
 }
 
 // Cria instancia de usuarios com banco para realizar as funções
-// Pode ser passado qualqer banco
+// Pode ser passado qualquer banco
 func NewUsuariosRepo(db *sql.DB) *Usuarios {
 	return &Usuarios{db}
 }

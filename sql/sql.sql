@@ -20,7 +20,7 @@ CREATE TABLE seguidores(
     seguidor_id int not null,
     FOREIGN KEY (seguidor_id) REFERENCES usuarios(id) ON DELETE CASCADE,
     PRIMARY KEY(usuario_id, seguidor_id)
-)
+);
 
 DROP TABLE IF EXISTS publicacoes;
 
@@ -31,7 +31,7 @@ CREATE TABLE publicacoes(
     autor_id int not null,
     FOREIGN KEY (autor_id) REFERENCES usuarios(id) ON DELETE CASCADE,
     criadaEm timestamp default current_timestamp()
-)
+);
 
 DROP TABLE IF EXISTS curtidas;
 
@@ -41,4 +41,6 @@ CREATE TABLE curtidas(
     publicacao_id int not null,
     FOREIGN KEY (publicacao_id) REFERENCES publicacoes(id) ON DELETE CASCADE,
     PRIMARY KEY(usuario_id, publicacao_id)
-)
+);
+
+GRANT ALL PRIVILEGES ON devbook.* TO 'localUserDocker'@'%';

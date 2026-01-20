@@ -22,6 +22,9 @@ func main() {
 	r := router.Gerar()
 
 	fmt.Printf("Rodando API na porta %d", config.Porta)
-	log.Fatal(http.ListenAndServe(fmt.Sprintf("localhost:%d", config.Porta), r))
-
+	porta := fmt.Sprintf("localhost:%d", config.Porta)
+	if config.DockerRun {
+		porta = fmt.Sprintf("0.0.0.0:%d", config.Porta)
+	}
+	log.Fatal(http.ListenAndServe(porta, r))
 }

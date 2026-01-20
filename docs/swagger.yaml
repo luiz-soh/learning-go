@@ -28,6 +28,13 @@ definitions:
     - email
     - senha
     type: object
+  models.LoginResponse:
+    properties:
+      token:
+        type: string
+      userId:
+        type: integer
+    type: object
   models.Publicacao:
     properties:
       CriadaEm:
@@ -91,7 +98,7 @@ paths:
       parameters:
       - description: Email e senha do usuário
         in: body
-        name: usuario
+        name: login
         required: true
         schema:
           $ref: '#/definitions/models.LoginRequest'
@@ -101,7 +108,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: string
+            $ref: '#/definitions/models.LoginResponse'
         "400":
           description: Bad Request
           schema:
